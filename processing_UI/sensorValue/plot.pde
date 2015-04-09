@@ -14,7 +14,7 @@ void plotInitial(){ // in setup
   //plot
   size(800,600,OPENGL);
   frame.setLocation(20,0);
-  frame.setTitle("LEADERG quadcopter");
+  frame.setTitle("InvertedPendulum");
   fonty = createFont("Arial",18);
   smooth();
   hint(ENABLE_STROKE_PURE);
@@ -187,8 +187,8 @@ void plotText(){
   }
   
  //sensor
-  textSize(20);  fill(0,0,0);  text( -pitch+"°" , 70 ,520);    
-  textSize(20);  fill(0,0,0);  text( -roll +"°" , 160 ,520); 
+  textSize(20);  fill(0,0,0);  text( pitch+"°" , 70 ,520);    
+  textSize(20);  fill(0,0,0);  text( roll +"°" , 160 ,520); 
   textSize(20);  fill(0,0,0);  text( yaw   +"°" , 260 ,520);
   textSize(14);  fill(255,20,147);  text( sensorTimeout , 710 ,490); 
 
@@ -200,13 +200,13 @@ void plotOpengl(){
   translate(650, 150);
   
   
-  rotateY(radians(0-roll));
-  rotateX(radians(0-pitch));
+  rotate(radians(0-yaw));
+  rotateX(radians(0-roll));
   //rotate(radians(yaw));
   
   //translate(0,20,0);
-  fill(0,0,255); stroke(0);  ellipse(0,80,50,50);
-  
+  fill(0,0,255);     stroke(0);    ellipse(0,80,50,50);  
+  fill(126,192,238); stroke(80);   box(8,180,1);
   /*fill(126,192,238); stroke(80);
   box(8,200,8);
   fill(78,238,148); stroke(80);

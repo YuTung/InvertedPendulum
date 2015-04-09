@@ -48,10 +48,10 @@ void mySerialRead(){
   }  
   
   if(val[0] == 254 && val[serialLength+2]==253){
-     /*if(serialLength == 9){
+     if(serialLength == 9){
        for(int i = 1 ; i < serialLength+2 ; i ++)     print( val[i] + " " );
        println(); 
-     }*/
+     }
      
      finish = true; 
      readCount = 0;  
