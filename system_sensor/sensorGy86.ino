@@ -107,8 +107,6 @@ void sensorGY86get(){
       output1 = ypr[0];output2 = ypr[1];output3 = ypr[2];
       //outputSensorValue(ypr[0],ypr[1],ypr[2]);//serial print
       printableGY86=true;
-      blinkState = !blinkState;
-      digitalWrite(LED_PIN, blinkState);
   }  
 }
 

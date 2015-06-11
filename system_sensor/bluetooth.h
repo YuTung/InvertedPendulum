@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-void bluetoothSend(double pitch,double yaw,uint8_t motor_R,uint8_t motor_L){
+void bluetoothSend(double pitch,double yaw,double pidResult){
  Serial1.write(90);
  //length
  Serial1.write(7);
@@ -27,10 +27,14 @@ void bluetoothSend(double pitch,double yaw,uint8_t motor_R,uint8_t motor_L){
    Serial1.write(1); 
    Serial1.write((int)-yaw); 
  }
- //motorR
- Serial1.write(motor_R);
- //motorL
- Serial1.write(motor_L);
+ //direction & pid result
+  if(pidResult>=0){
+    Serial1.write(0);
+    Serial1.write((int)pidResult); 
+  }else{
+    Serial1.write(1);
+    Serial1.write((int)-pidResult); 
+  }
  
  
  Serial1.write(165);

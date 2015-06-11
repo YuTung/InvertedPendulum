@@ -5,8 +5,11 @@
 
 //pin
 #define PIN_LED      13
-#define PIN_MOTOR_R  5
-#define PIN_MOTOR_L  6
+#define PIN_MOTOR_L_1  4
+#define PIN_MOTOR_L_2  5
+#define PIN_MOTOR_R_3  6
+#define PIN_MOTOR_R_4  7
+
 
 // pid parameters
 #define PID_PITCH_P  2.0

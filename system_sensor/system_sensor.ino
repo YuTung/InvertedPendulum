@@ -14,7 +14,6 @@
 //#define BLUETOOTH //port 30
 
 enum modeType{  BALANCE , RELAX  }MODETYPE;
-uint8_t motorR,motorL;
 struct pitchYaw{
   double pitch , yaw ;
 }CMD,SENSOR,PIDresult;
@@ -23,9 +22,10 @@ uint8_t mode;
 MPU6050 mpu;
 PID PIDpitch( &SENSOR.pitch, &PIDresult.pitch, &CMD.pitch, PID_PITCH_P, PID_PITCH_I, PID_PITCH_D, 0);        
             // input,output,setpoint,PID,direction 
-
+PID PIDyaw( &SENSOR.yaw, &PIDresult.yaw, &CMD.yaw, PID_YAW_P, PID_YAW_I, PID_YAW_D, 0);        
+            // input,output,setpoint,PID,direction 
+            
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
-bool blinkState = false;
 
 // MPU control/status vars
 bool dmpReady = false;  // set true if DMP init was successful
@@ -49,6 +49,7 @@ uint8_t teapotPacket[14] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\
 
 boolean printableGY86 = false;
 float output1,output2,output3;
+
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
@@ -71,10 +72,15 @@ void setup() {
 
   
   //motor pin setup
-  pinMode(PIN_MOTOR_R,OUTPUT);
-  pinMode(PIN_MOTOR_L,OUTPUT);
-  analogWrite(PIN_MOTOR_R,0);
-  analogWrite(PIN_MOTOR_L,0);  
+  pinMode(PIN_MOTOR_L_1, OUTPUT);
+  pinMode(PIN_MOTOR_L_2, OUTPUT);
+  pinMode(PIN_MOTOR_R_3, OUTPUT);
+  pinMode(PIN_MOTOR_R_4, OUTPUT);
+  
+  digitalWrite(PIN_MOTOR_L_1, 0);
+  digitalWrite(PIN_MOTOR_L_2, 0);
+  digitalWrite(PIN_MOTOR_R_3, 0);
+  digitalWrite(PIN_MOTOR_R_4, 0);
   
   // pin setup
   pinMode(PIN_LED,OUTPUT);
@@ -122,15 +128,25 @@ void loop() {
   //control law
   PIDpitch.Compute();
 
-//motorR=?
+  //motor output 
+  if(PIDresult.pitch >= 0)
+  { //forward
+    analogWrite(PIN_MOTOR_L_2, 0);
+    analogWrite(PIN_MOTOR_R_4, 0);
+    analogWrite(PIN_MOTOR_L_1, PIDresult.pitch);
+    analogWrite(PIN_MOTOR_R_3, PIDresult.pitch);
+  }
+  else
+  { //backward
+    analogWrite(PIN_MOTOR_L_1, 0);
+    analogWrite(PIN_MOTOR_R_3, 0);
+    analogWrite(PIN_MOTOR_L_2, abs(PIDresult.pitch));
+    analogWrite(PIN_MOTOR_R_4, abs(PIDresult.pitch));
+  };
 
-  //output motor
-  analogWrite(PIN_MOTOR_R,motorR);
-  analogWrite(PIN_MOTOR_L,motorL);  
-    
   //bluetooth output
   #ifdef BLUETOOTH
-    bluetoothSend(SENSOR.pitch,SENSOR.yaw,motorR,motorL);
+    bluetoothSend(SENSOR.pitch,SENSOR.yaw,PIDresult.pitch);
   #endif
   
   //debug print
