@@ -11,7 +11,7 @@
 #endif
 
 #define DEBUG  // to print or not
-//#define BLUETOOTH
+//#define BLUETOOTH //port 30
 
 enum modeType{  BALANCE , RELAX  }MODETYPE;
 uint8_t motorR,motorL;
@@ -62,8 +62,10 @@ void dmpDataReady() {
 // ================================================================
 void setup() {
   Serial.begin(115200);//debug  
-  Serial1.begin(9600);//bluetooth
   
+  #ifdef BLUETOOTH
+    Serial1.begin(9600);//bluetooth
+  #endif
   // configure LED for output
   pinMode(LED_PIN, OUTPUT);
 
@@ -89,6 +91,8 @@ void setup() {
   #endif
   
   sensorGY86Setup();
+  
+  mode= BALANCE;
 }
 
 void loop() {
@@ -100,7 +104,8 @@ void loop() {
    if(printableGY86){
      printableGY86 = false;
      //outputSensorValue(output1,output2,output3);
-     SENSOR.pitch = output2 * 180/M_PI;     
+     SENSOR.pitch = output2 * 180/M_PI; 
+     SENSOR.yaw = output1 * 180/M_PI;
   }
    
   //command mode: BALANCE,RELAX
@@ -115,8 +120,6 @@ void loop() {
     
   }
   //control law
-
-
   PIDpitch.Compute();
 
 //motorR=?
@@ -127,7 +130,7 @@ void loop() {
     
   //bluetooth output
   #ifdef BLUETOOTH
-    bluetoothSend();
+    bluetoothSend(SENSOR.pitch,SENSOR.yaw,motorR,motorL);
   #endif
   
   //debug print
