@@ -8,7 +8,7 @@ int BTbreak = 0;
 String[] listPort = new String[5];
 //decode BT
 int mode,pitch = 0,yaw = 0,sensorTimeout = 0;
-int[] motor = new int[4];
+int direction, pidValue;
 //send BT
 int[] sendBT = new int[30];
 //read BT
@@ -73,13 +73,12 @@ void mySerialRead(){
      if(val[3]==1) pitch = -pitch;
      yaw           = val[6];
      if(val[5]==1) yaw = -yaw;
-     motor[0]      = val[7];
-     motor[1]      = val[8];
+     direction      = val[7];     
+     pidValue      = val[8];
+     if(val[7]==1)  pidValue= -pidValue;
    }
    /*
    print(mode + " " + pitch + " " +yaw+ " ");
-   print(motor[0] + " " + motor[1] + " " + motor[2] + " " + motor[3]+ " ");
-   print(sensorTimeout);
    println();
    //*/
    for(int i = 0 ; i < 15; i ++) val[i] = 0;
