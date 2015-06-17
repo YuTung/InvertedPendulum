@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 //pin
-#define PIN_LED      13
+#define PIN_LED        13
 #define PIN_MOTOR_L_1  4
 #define PIN_MOTOR_L_2  5
 #define PIN_MOTOR_R_3  6
@@ -12,10 +12,10 @@
 
 
 // pid parameters
-#define PID_PITCH_P  25.0
+#define PID_PITCH_P  20.0
 #define PID_PITCH_I  0.0
-#define PID_PITCH_D  0.0
-#define PID_YAW_P    0.0
+#define PID_PITCH_D  1.5
+#define PID_YAW_P    8.0
 #define PID_YAW_I    0.0
 #define PID_YAW_D    0.0
 

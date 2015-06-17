@@ -49,6 +49,9 @@ uint8_t teapotPacket[14] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\
 
 boolean printableGY86 = false;
 float output1,output2,output3;
+double initYaw = 0.0,aveYaw = 0.0;
+int firstTen=0;
+double outputCheck = 0.0;
 
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
@@ -87,6 +90,7 @@ void setup() {
   digitalWrite(PIN_LED,LOW);
  
   PIDpitch.SetMode(AUTOMATIC);
+  PIDyaw.SetMode(AUTOMATIC);
   
  //i2c setup for sensor join I2C bus (I2Cdev library doesn't do this automatically)
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -118,7 +122,8 @@ void loop() {
   switch(mode){
     case BALANCE://command = 0;
      CMD.pitch = 0;
-     CMD.yaw = 0;
+     //CMD.yaw = 0;
+     CMD.yaw = initYaw;
      break;
     case RELAX: //command = 70;  then  close motor output?
     
@@ -127,7 +132,9 @@ void loop() {
   }
   //control law
   PIDpitch.Compute();
+  PIDyaw.Compute();
 
+  /*
   //motor output 
   if(PIDresult.pitch >= 0)
   { //forward
@@ -135,6 +142,12 @@ void loop() {
     analogWrite(PIN_MOTOR_R_4, 0);
     analogWrite(PIN_MOTOR_L_1, PIDresult.pitch);
     analogWrite(PIN_MOTOR_R_3, PIDresult.pitch);
+    //motor limit out
+    if(PIDresult.pitch > 250){
+      PIDresult.pitch=250;
+      analogWrite(PIN_MOTOR_L_1, PIDresult.pitch);
+      analogWrite(PIN_MOTOR_R_3, PIDresult.pitch);      
+    }
   }
   else
   { //backward
@@ -142,8 +155,88 @@ void loop() {
     analogWrite(PIN_MOTOR_R_3, 0);
     analogWrite(PIN_MOTOR_L_2, abs(PIDresult.pitch));
     analogWrite(PIN_MOTOR_R_4, abs(PIDresult.pitch));
-  };
-
+    //motor limit out
+    if(abs(PIDresult.pitch) > 250){
+      PIDresult.pitch=250;
+      analogWrite(PIN_MOTOR_L_2, PIDresult.pitch);
+      analogWrite(PIN_MOTOR_R_4, PIDresult.pitch);      
+    }
+  }*/
+  /*
+ if(PIDresult.yaw >= 0)
+  { //forward
+    analogWrite(PIN_MOTOR_L_2, 0);
+    analogWrite(PIN_MOTOR_R_4, PIDresult.yaw);
+    analogWrite(PIN_MOTOR_L_1, PIDresult.yaw);
+    analogWrite(PIN_MOTOR_R_3, 0);
+    //motor limit out
+    if(PIDresult.yaw > 250){
+      PIDresult.yaw=250;
+      analogWrite(PIN_MOTOR_L_1, PIDresult.yaw);
+      analogWrite(PIN_MOTOR_R_4, PIDresult.yaw);      
+    }
+  }
+  else
+  { //backward
+    analogWrite(PIN_MOTOR_L_1, 0);
+    analogWrite(PIN_MOTOR_R_3, abs(PIDresult.yaw));
+    analogWrite(PIN_MOTOR_L_2, abs(PIDresult.yaw));
+    analogWrite(PIN_MOTOR_R_4, 0);
+    //motor limit out
+    if(abs(PIDresult.yaw) > 250){
+      PIDresult.yaw=250;
+      analogWrite(PIN_MOTOR_L_2, PIDresult.yaw);
+      analogWrite(PIN_MOTOR_R_3, PIDresult.yaw);      
+    }
+  }
+  */
+  
+  if( PIDresult.pitch >=0 & PIDresult.yaw >=0 ){
+    outputCheck = PIDresult.pitch + PIDresult.yaw;
+    if(outputCheck >250) outputCheck=250;    
+    analogWrite(PIN_MOTOR_L_1, outputCheck);
+    analogWrite(PIN_MOTOR_L_2, 0);
+    outputCheck = PIDresult.pitch;
+    if(outputCheck >250) outputCheck=250; 
+    analogWrite(PIN_MOTOR_R_3, outputCheck);
+    outputCheck = PIDresult.yaw;
+    if(outputCheck >250) outputCheck=250;     
+    analogWrite(PIN_MOTOR_R_4, outputCheck);   
+  }else if( PIDresult.pitch >=0 & PIDresult.yaw <0 ){
+    outputCheck = PIDresult.pitch;
+    if(outputCheck >250) outputCheck=250;    
+    analogWrite(PIN_MOTOR_L_1, outputCheck);
+    outputCheck = -PIDresult.yaw;
+    if(outputCheck > 250) outputCheck= 250;     
+    analogWrite(PIN_MOTOR_L_2, outputCheck);
+    outputCheck = PIDresult.pitch-PIDresult.yaw;
+    if(outputCheck >250) outputCheck=250; 
+    analogWrite(PIN_MOTOR_R_3, outputCheck);  
+    analogWrite(PIN_MOTOR_R_4, 0);      
+  }else if( PIDresult.pitch <0 & PIDresult.yaw >=0 ){
+    outputCheck = PIDresult.yaw;
+    if(outputCheck >250) outputCheck=250;    
+    analogWrite(PIN_MOTOR_L_1, outputCheck);
+    outputCheck = -PIDresult.pitch;
+    if(outputCheck > 250) outputCheck= 250;     
+    analogWrite(PIN_MOTOR_L_2, outputCheck);
+    analogWrite(PIN_MOTOR_R_3, 0);  
+    outputCheck = PIDresult.yaw-PIDresult.pitch;
+    if(outputCheck >250) outputCheck=250; 
+    analogWrite(PIN_MOTOR_R_4, outputCheck);     
+  }else{    
+    analogWrite(PIN_MOTOR_L_1, 0);
+    outputCheck = -PIDresult.yaw-PIDresult.pitch;
+    if(outputCheck > 250) outputCheck= 250;     
+    analogWrite(PIN_MOTOR_L_2, outputCheck);    
+    outputCheck = -PIDresult.yaw;
+    if(outputCheck >250) outputCheck=250; 
+    analogWrite(PIN_MOTOR_R_3, outputCheck);  
+    outputCheck = -PIDresult.pitch;
+    if(outputCheck >250) outputCheck=250; 
+    analogWrite(PIN_MOTOR_R_4, outputCheck);      
+  }
+  
   //bluetooth output
   #ifdef BLUETOOTH
     bluetoothSend(SENSOR.pitch,SENSOR.yaw,PIDresult.pitch);

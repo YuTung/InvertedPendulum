@@ -28,7 +28,7 @@ void plotInitial(){ // in setup
 }
 
 void plotBackground(){  
-  background(245,255,250);  
+  background(255,255,224);  //245,255,250
  // number
   int number = 9;
   for(int i = 0 ; i < 19 ; i ++){
@@ -164,18 +164,61 @@ void plotText(){
 void plotOpengl(){
   lights();  
   pushMatrix();
-  translate(650, 150);
   
+  translate(650, 150,0);
+ 
+  rotateY(radians(0-yaw));
+  rotate(radians(pitch));
   
-  rotate(radians(0-pitch));
-  //rotateX(radians(0-yaw));
+  translate(0, 0,30);
+  fill(0,0,255);     stroke(0);  
+  translate(0, 50,0); drawCylinder(360, 25, 9); translate(0, -50,0); 
+  fill(126,192,238); stroke(80);   box(8,100,8);
   
-  //translate(0,20,0);
-  fill(0,0,255);     stroke(0);    ellipse(0,80,50,50);  
-  fill(126,192,238); stroke(80);   box(8,180,1);
+  translate(0, -25,-25);
+  fill(126,192,238); stroke(80);   box(150,8,55);
   
+  translate(0, 25,-35);
+  fill(0,0,255);     stroke(0);  
+  translate(0, 50,9); drawCylinder(360, 25, 9); translate(0, -50,0);
+  fill(126,192,238); stroke(80);   box(8,100,8);
+   
   popMatrix();
 }
+
+void drawCylinder(int sides, float r, float h)
+{
+    float angle = 360 / sides;
+    float halfHeight = h / 2;
+    // draw top shape
+    beginShape();
+    for (int i = 0; i < sides; i++) {
+        float x = cos( radians( i * angle ) ) * r;
+        float y = sin( radians( i * angle ) ) * r;
+        vertex( x, y, -halfHeight );    
+    }
+    endShape(CLOSE);
+    
+    // draw bottom shape
+    beginShape();
+    for (int i = 0; i < sides; i++) {
+        float x = cos( radians( i * angle ) ) * r;
+        float y = sin( radians( i * angle ) ) * r;
+        vertex( x, y, halfHeight );    
+    }
+    endShape(CLOSE);
+    
+    // draw body
+    beginShape(TRIANGLE_STRIP);
+    for (int i = 0; i < sides + 1; i++) {
+        float x = cos( radians( i * angle ) ) * r;
+        float y = sin( radians( i * angle ) ) * r;
+        vertex( x, y, halfHeight);
+        vertex( x, y, -halfHeight);    
+    }
+    endShape(CLOSE); 
+    
+} 
 
 void plotActualtime(){
   min = minute(); sec = second() ;hr  = hour();

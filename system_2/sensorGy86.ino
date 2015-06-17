@@ -107,6 +107,16 @@ void sensorGY86get(){
       output1 = ypr[0];output2 = ypr[1];output3 = ypr[2];
       //outputSensorValue(ypr[0],ypr[1],ypr[2]);//serial print
       printableGY86=true;
+      
+      if(firstTen<100){
+        initYaw = output1 * 180/M_PI;
+        aveYaw = aveYaw + initYaw;
+        firstTen++;
+        if(firstTen >=100){
+          initYaw=aveYaw/100.0;
+        }
+      }
+      
   }  
 }
 
